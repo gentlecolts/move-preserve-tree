@@ -1,0 +1,38 @@
+#!/bin/bash
+
+if [ "$#" -ne 2 ]; then
+	echo "invalid number of arguments, expecting 2"
+	echo "of the form movepreservetre.sh [from] [to]"
+	exit 1
+fi
+
+if [ ! -d "$1" ]; then
+	echo "$1 is not a valid directory"
+	exit 2
+fi
+
+if [ ! -d "$2" ]; then
+	echo "$2 does not exist, making it"
+	mkdir -p "$2"
+fi
+
+if [[ ${2:0:1} = / ]]; then #$2 is an absolute path
+	TODIR=$2
+else #$2 is a relative path
+	TODIR="$PWD/$2" #absolute path to our destination directory
+fi
+
+cd "$1"
+
+FLIST="$(find . -type f)"
+
+echo -e "target dir is \e[38;5;204m$TODIR\e[0m"
+
+while read -r file; do
+	#echo "$file"
+	#echo "$(dirname "$file")"
+	SUBDIR=$(dirname "$file")
+	echo -e "moving \e[38;5;204m$file\e[0m to {TARGET}/\e[38;5;204m$SUBDIR\e[0m"
+	mkdir -p "$TODIR/$SUBDIR"
+	mv "$file" "$TODIR/$SUBDIR"
+done <<< "$FLIST"
